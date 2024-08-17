@@ -1,0 +1,42 @@
+---
+- name: Creating new lab environement {{ lab.name }}
+  when: not lab_destroy|bool
+  block:
+    - name: Download required images
+      ansible.builtin.include_tasks:
+        file: download_image.yaml
+
+    - name: Creating network
+      ansible.builtin.include_tasks:
+        file: network.yml
+      when:
+        - lab.network is defined
+        - lab.network.type == "nat"
+
+    - name: Creating lab hosts
+      ansible.builtin.include_tasks:
+        file: host.yml
+      with_items: "{{ lab.hosts }}"
+      when: lab.hosts is defined
+
+    - name: Deploy CA certificate
+      ansible.builtin.include_tasks:
+        ca.yml
+      with_items: "{{ lab.hosts }}"
+      when: lab.hosts is defined
+
+- name: Removing lab environment {{ lab.name }}
+  when: lab_destroy|bool
+  block:
+    - name: Removing hosts
+      ansible.builtin.include_tasks:
+        file: remove_host.yml
+      with_items: "{{ lab.hosts }}"
+      when: lab.hosts is defined
+
+    - name: Removing network
+      ansible.builtin.include_tasks: remove_network.yml
+      when:
+        - lab.network is defined
+        - lab.network.type == "nat"
+...

@@ -1,0 +1,22 @@
+---
+# Red Hat SSO URL for generating an access token
+rhsm_download_access_token_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+
+# Base URL for the RHSM API
+# RHSM API docs at https://access.redhat.com/management/api/rhsm
+rhsm_download_api_url: https://api.access.redhat.com/management/v1
+rhsm_download_api_url_timeout: 30
+
+# This variable should be overridden with the real offline token value stored
+# in an Ansible vault or Tower credential, as it allows API access to the RHSM
+# API with the permissions of the account holder.  A new token will need to be
+# generated if it is not used at least once every 30 days.
+# (https://access.redhat.com/articles/3626371)
+rhsm_download_offline_token: ''
+
+# The playbook calling this role should set the list of files to download
+rhsm_download_files: []
+rhsm_download_directory: /tmp
+rhsm_download_file_mode: "0644"
+
+...

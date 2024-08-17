@@ -1,0 +1,8 @@
+---
+- name: Download files with RHSM API
+  ansible.builtin.include_tasks:
+    file: download-file.yml
+  loop: '{{ rhsm_download_files }}'
+  loop_control:
+    loop_var: _filename
+...

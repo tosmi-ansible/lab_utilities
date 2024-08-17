@@ -1,0 +1,117 @@
+---
+# The rhsm_download_file_checksum dictionary contains the file to download
+# (the key) # using the RHSM API and the checksum of the file (value), which
+# is used both # in the API endpoint URL as well as to verify the resulting
+# file.
+#
+# This variable currently contains a small subset of the files which can
+# be downloaded.  To download something not represented here, override this
+# variable at the task level when including the role so that it contains the
+# desired filename and checksum.  File names and checksums can be found on
+# the relevant product download page in the Red Hat Customer Portal.  Hover
+# over the 'Download Now' button on the page to get the filename associated
+# with the product checksum.
+#
+rhsm_download_file_checksum:
+  # RHEL 9 QCOW2 images
+  rhel-9.4-x86_64-kvm.qcow2: '17b013f605e6b85affd37431b533b6904541f8b889179ae3f99e1e480dd4ae38'
+  rhel-baseos-9.1-x86_64-kvm.qcow2: '8a24976ed98ac43b165369353741bb3a4c72fac9ad1cd7d564956ffe8a89c968'
+  rhel-baseos-9.0-update-4-x86_64-kvm.qcow2: 'cf64d9c8cec54c3eba4b642468ab191e5c19e6b2251ef885bd4516e2099e5ea3'
+  rhel-baseos-9.0-x86_64-kvm.qcow2: '92862e085e4d5690cfa57de7155aa29bfdf21feec3d46dd4b61ca63293312af7'
+
+  # RHEL 8 QCOW2 images
+  rhel-8.7-x86_64-kvm.qcow2: '9b5718977832213cf07dc17a9ba3ad171b21576840064ecf2c395fa7642412d2'
+  rhel-8.6-x86_64-kvm.qcow2: 'c9b32bef88d605d754b932aad0140e1955ab9446818c70c4c36ca75d6f442fe9'
+  rhel-8.5-update-2-x86_64-kvm.qcow2: 'b2bfd0abc871143b97e6648183e69987b6bc2aded58972a866f967fd355d0e9a'
+  rhel-8.5-x86_64-kvm.qcow2: '9b63267716fa557f76df4899fb6a591c4c8a6ae2828f6297458815bff55ce8cc'
+  rhel-8.4-x86_64-kvm.qcow2: 'df9660e770711f797b311a04946ce45db19843ddb1c60ccadca8b77fa0444e4f'
+  rhel-8.3-update-2-x86_64-kvm.qcow2: '055d6fa91f0ad42556325b8ea1ff1950876bef18e164dc964f7cd4431fa294d8'
+  rhel-8.3-x86_64-kvm.qcow2: '321c20a732419472ba584ea34cd2cab79db2ea1790abe467ea3c0e2ca521a6b7'
+  rhel-8.2-update-2-x86_64-kvm.qcow2: '588167f828001e57688ec4b9b31c11a59d532489f527488ebc89ac5e9522f333'
+  rhel-8.2-x86_64-kvm.qcow2: '8e34e57feb68d19ba9ffbefcd3f662b1a3437c9f7d811449c5ad452adda64384'
+  rhel-8.1-update-3-x86_64-kvm.qcow2: '1e25c46cc4644a2b913f4d5bea3a0a91180f539fb41bcf22ee0ca8a6cd4b8363'
+  rhel-8.1-x86_64-kvm.qcow2: '30d8c48b34cb471298e1f06fd1ef954561d29cdff27e62bbc2dc32785587b7e2'
+  rhel-8.0-update-3-x86_64-kvm.qcow2: '25dc356a078327d32c0aa376404afd4f8e61385f5d2d2b1fe08c4976b28e3ef8'
+  rhel-8.0-update-1-x86_64-kvm.qcow2: '5374da54169844ec36a291da7adb4b2e2254020a97b1e7eaaa92cebf8f4ac6e4'
+  rhel-8.0-update-0-x86_64-kvm.qcow2: 'bb21783a9b1c7427019f87b39475105988d17a7cde9da582c370521678f8efb1'
+  rhel-8.0-x86_64-kvm.qcow2: '68312d7c9f6316921086dc891285fdba41a0f0febee35cc28161d65e6170857f'
+
+  # RHEL 7.9 QCOW2 images
+  rhel-server-7.9-update-12-x86_64-kvm.qcow2: '46ed32cbe8183930f2488972a6d13bae2053e23c2f8ab8afa4d6e6757e9a7130'
+  rhel-server-7.9-update-9-x86_64-kvm.qcow2: 'dccc15168be1420d3d3a34db88156e11ccb1f42faa323471384848fc37fe0d31'
+  rhel-server-7.9-update-3-x86_64-kvm.qcow2: '1df6c664678c0164914a426e832c0b4a1b438360075e49a288f70623915a8697'
+  rhel-server-7.9-x86_64-kvm.qcow2: '604afdcce495ac09b60fbde912523763af5a041d64b34d7e32bff876eff40f28'
+
+  # RHEL 9 ISOs
+  rhel-9.1-baseos-x86_64-boot.iso: '71020b8e86246b6626fcc4d5a13ddd9fffdb031446c07c903591764c61a3be70'
+  rhel-9.1-baseos-x86_64-dvd.iso: 'd9dcae2b6e760d0f9dcf4a517bddc227d5fa3f213a8323592f4a07a05aa542a2'
+  rhel-9.0-baseos-x86_64-boot.iso: 'f3ca9b53122212ed98866ef60e4895cc762493ced765e2961458944ba7c0ced3'
+  rhel-9.0-baseos-x86_64-dvd.iso: 'c6942e3ed65947ed48c30589d9c1a752e96c5b94ee8de1923331449fee162cc1'
+
+  # RHEL 8 ISOs
+  rhel-8.7-x86_64-boot.iso: '47e5dbb37b5970f583d0852973af86cc1b522ee1f1e2374c59204583c14717fa'
+  rhel-8.7-x86_64-dvd.iso: 'a6a7418a75d721cc696d3cbdd648b5248808e7fef0f8742f518e43b46fa08139'
+  rhel-8.6-x86_64-boot.iso: '10edaf029513bd18150f1f39b5122ced0b04fa7762d6d82f800cc210e89e5f7d'
+  rhel-8.6-x86_64-dvd.iso: '8cb0dfacc94b789933253d5583a2fb7afce26d38d75be7c204975fe20b7bdf71'
+  rhel-8.5-x86_64-boot.iso: '61fe463758f6ee9b21c4d6698671980829ca4f747a066d556fa0e5eefc45382c'
+  rhel-8.5-x86_64-dvd.iso: '1f78e705cd1d8897a05afa060f77d81ed81ac141c2465d4763c0382aa96cadd0'
+  rhel-8.4-x86_64-boot.iso: '5fa79f357dab40056e1052cb4b03ff9fe7a502b519df7e3789f8899b3f461945'
+  rhel-8.4-x86_64-dvd.iso: '48f955712454c32718dcde858dea5aca574376a1d7a4b0ed6908ac0b85597811'
+  rhel-8.3-x86_64-boot.iso: '1b73ebfebd1f9424c806032168873b067259d8b29f4e9d39ae0e4009cce49b93'
+  rhel-8.3-x86_64-dvd.iso: '30fd8dff2d29a384bd97886fa826fa5be872213c81e853eae3f9d9674f720ad0'
+  rhel-8.2-x86_64-boot.iso: 'd30989c6b3f3b81c262dfbf6e8f711e0d49a6828eb77833c34859e694c24e981'
+  rhel-8.2-x86_64-dvd.iso: '7fdfed9c7cced4e526a362e64ed06bcdc6ce0394a98625a40e7d05db29bf7b86'
+  rhel-8.1-x86_64-boot.iso: 'db9a55c4cba46a2545558c6956d25d39163d81ebb3a9566cf738d69151c22b74'
+  rhel-8.1-x86_64-dvd.iso: '5a0fe856ada91efa7015cc4cf10567dcd8857e75818fac1c0ec18f68368e3db4'
+  rhel-8.0-x86_64-boot.iso: 'f6be6ec48a4a610e25d591dcf98e1777c4274ed58c583fa64d0aea5b3ecffb18'
+  rhel-8.0-x86_64-dvd.iso: '005d4f88fff6d63b0fc01a10822380ef52570edd8834321de7be63002cc6cc43'
+
+  # RHEL 7.9 ISOs
+  rhel-server-7.9-x86_64-boot.iso: 'a973d203e28030178af374b02ecdc537d587095dcef6dc0a4471d93e3bfded4e'
+  rhel-server-7.9-x86_64-dvd.iso: '19d653ce2f04f202e79773a0cbeda82070e7527557e814ebbce658773fbe8191'
+
+  # Ansible Automation Platform 2 setup tarballs
+  # AAP 2.3
+  ansible-automation-platform-setup-2.3-1.tar.gz: 'e3cd033d6a6f5ddcdeb2f5b91b1382127d29b969fb224f260d0a4f1e495b20e6'
+  ansible-automation-platform-setup-bundle-2.3-1.1.tar.gz: '0046367b76d7c3aca0d311a05935acd667438dfe9640db16f5027952d46dc470'
+  # AAP 2.2
+  ansible-automation-platform-setup-2.2.1-1.tar.gz: 'e2260b720579476df130d9a735185e2e068cdc216130cbd4bac8ab4a7c40b910'
+  ansible-automation-platform-setup-bundle-2.2.1-1.1.tar.gz: '9a90a8db350b2852471aa987f8487ace7bba85d64219221b5a613647a202e6c1'
+  ansible-automation-platform-setup-2.2.0-8.tar.gz: '39c5f84421585fe0171fc0532d3507d195fc32bf5b74e53bfd4e9bcca7a0fcd0'
+  ansible-automation-platform-setup-bundle-2.2.0-8.1.tar.gz: 'ad7a47fe00a52347eac978a99e96392decfdff121e4e61f0e038c7d6603d37f5'
+  ansible-automation-platform-setup-2.2.0-7.tar.gz: '414b3e84f5cdc3a10ba64e09a7c770aace88466c054520df3a12f9a5c39d7623'
+  ansible-automation-platform-setup-bundle-2.2.0-7.tar.gz: '04c4637973173975f10b3a1a9046ab66b72b3b6237b8f98fbd4407b0fc751f65'
+  ansible-automation-platform-setup-2.2.0-6.tar.gz: '835161225aec0bc18421978985870a7d3a0d54667dc659b68a358ba32256a8fb'
+  ansible-automation-platform-setup-bundle-2.2.0-6.1.tar.gz: '87b8c49464509a4934182c280d61bd1db4dc3461ddb51438ced4fe24afe77698'
+  # AAP 2.1
+  ansible-automation-platform-setup-2.1.4-1.tar.gz: '9dc391541c432d4200c427c3cbce36d99c3215b20ab4769b3e7a042024ad4676'
+  ansible-automation-platform-setup-bundle-2.1.4-1.tar.gz: '2bd7c9623e5d640fdd7482ecf0d4c7f6f216156f2c800d143f336db37ce0b0f1'
+  ansible-automation-platform-setup-2.1.3-1.tar.gz: '6300f5f9016658b89284718fcfba19f23974f0276261556abc74b5e7efde4c57'
+  ansible-automation-platform-setup-bundle-2.1.3-1.tar.gz: '3483a27023f89fd3c4747dc505c6d3bc48cc89e6117b52efb3403dd8d30368be'
+  ansible-automation-platform-setup-2.1.2-1.tar.gz: 'd5bab4c712f909ac16e1bab8d8b2a1671f50d9543ab87431963e6613045a3251'
+  ansible-automation-platform-setup-bundle-2.1.2-1.tar.gz: '161b45950284c0798cfa8fd6b0d6a0d80a29d1d0ca2063b83da1569f477190f7'
+  ansible-automation-platform-setup-2.1.1-1.tar.gz: '93402e7f622473c754b450a5af3c2f9dea51906be441794187d1445daf3b90ef'
+  ansible-automation-platform-setup-bundle-2.1.1-2.tar.gz: 'ac44071ab32248022ee51eed7db2002a772178bfe03807cd08f67dbde58f1941'
+  ansible-automation-platform-setup-2.1.0-1.tar.gz: '31e4b2a4df47cd81fee8aa4280cb5e2217a7534289dc26a4e4354dab5c25f131'
+  ansible-automation-platform-setup-bundle-2.1.0-1.tar.gz: 'ea2843fae672274cb1b32447c9a54c627aa5bdf5577d9a6c7f957efe68be8c01'
+
+  # Ansible Automation Platform 1.2 bundles
+  ansible-automation-platform-setup-1.2.6-3.tar.gz: 'd56e04e285730d817fc49031efff3cb20918b24916047679a79561316ca4ccb4'
+  ansible-automation-platform-setup-bundle-1.2.6-3.tar.gz: '59842830e710faa96f9e4753fca95bc1e5bf5ad2fbe8a3251102c0b362af584a'
+  ansible-automation-platform-setup-1.2.6-2.tar.gz: 'd182551d42e694a016184d685c4bd42109ef49f50f54c66b8ecdd70318fa31e3'
+  ansible-automation-platform-setup-bundle-1.2.6-2.tar.gz: '2669d5b35b535696f532a1f5e7d2be09774b5703b58789c88c769244d353b19d'
+
+  ansible-automation-platform-setup-1.2.5-1.tar.gz: 'b0b9915672c35dec3a0384b4829aed192ae6ce3c3012cb1c7e7a40be914256b2'
+  ansible-automation-platform-setup-bundle-1.2.5-1.tar.gz: '08e15797d4c4372a85208338f853d18a72f1ea6e49561c8271ea16ea92d005bb'
+  ansible-automation-platform-setup-1.2.4-1.tar.gz: '88bebf4025ce292d1ff8b0ac9975f6a4a23a88e17287231aec96e01a9b8b2361'
+  ansible-automation-platform-setup-bundle-1.2.4-1.tar.gz: '237f809c6a278c7b1962f514c650fb9e7aab456a99f72daed995f9c2945d172c'
+  ansible-automation-platform-setup-1.2.3-1.tar.gz: 'a88e527f7f55be1e7ef2bd05c80aef5bc6ec21f71d809935f224c7cd40123df1'
+  ansible-automation-platform-setup-bundle-1.2.3-1.tar.gz: '7028c6acf6016d1c804aec9015df37232f900b3227d622d7baa6c648604a5d54'
+  ansible-automation-platform-setup-1.2.2-1.tar.gz: '1b1f355b70e5c5ba81a562ef8f4b09d6331995232880d8a913d31202e4730489'
+  ansible-automation-platform-setup-bundle-1.2.2-1.tar.gz: 'ae4fb1f0da9ae251364f394ba834ee69607ba22b0efeed04a0968e347f3bb049'
+  ansible-automation-platform-setup-1.2.1-1.tar.gz: 'bf4d04647dd26a8aa0e7215ed6d244abae23a5b9bdf7088c448e55cadbdf61c8'
+  ansible-automation-platform-setup-bundle-1.2.1-1.tar.gz: '758c94690b1cc53a80c759ca6fb86e1d20d01289eaed69646d4f2f09d8b36a89'
+  ansible-automation-platform-setup-1.2.0-1.tar.gz: '65b82d3f427a2ce55db21ad7408789798f347721ab0cae8c24da664110db2829'
+  ansible-automation-platform-setup-bundle-1.2.0-1.tar.gz: '257d6fe2b36348e19c20447375d975589b072f726b149a68aa3ab6b30e9233e7'
+
+...
