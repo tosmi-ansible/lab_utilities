@@ -8,3 +8,6 @@ lab_ssh_proxy: ""
 
 lab_rhn_register: false
 lab_rhn_org_id: ""
+
+lab_default_network_startip: "192.168.122.2"
+lab_default_network_netmask: "255.255.255.0"

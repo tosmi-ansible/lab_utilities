@@ -1,69 +1,97 @@
-- name: set the image to use
-  set_fact:
-    lab_host_image_src: "/var/lib/libvirt/images/{{ item.image | default(lab_default_image) }}"
+- name: Get the current User ID
+  ansible.builtin.setup:
+    gather_subset:
+      - '!all'
+      - 'user_id'
 
-- name: check if destination image already exists
-  stat:
-    path: "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2"
+- debug: var=ansible_facts
+
+- name: Set the path to images
+  set_fact:
+    lab_host_image_path: "{{ lab_user_image_path if ansible_facts.user_id != 'root' | default(lab_image_path) }}"
+
+- name: Set the default image source
+  set_fact:
+    lab_host_image_src: "{{ lab_host_image_path }}/{{ item.image | default(lab_default_image) }}"
+
+- name: Check if destination image already exists
+  ansible.builtin.stat:
+    path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
   register: destination_image
 
-- name: check rhel images exists
-  stat:
+- name: Check RHEL images exists
+  ansible.builtin.stat:
     path: "{{ lab_host_image_src }}"
   register: rhel_qcow
 
-- name: fail if RHEL qcow image does not exist
-  fail:
-    msg: "please download requested rhel image to {{ lab_host_image_src }}"
+- name: Fail if RHEL qcow image does not exist
+  ansible.builtin.fail:
+    msg: "please download requested rhel image to {{ lab_host_image_path }}"
   when: not rhel_qcow.stat.exists
 
-- name: copy rhel image to image file
-  copy:
+- name: Copy rhel image to image file
+  ansible.builtin.copy:
     src: "{{ lab_host_image_src }}"
-    dest: "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2"
+    dest: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
     remote_src: yes
     force: no
 
-- name: resize disk
-  block:
-  - name: resize disk to {{ item.disksize }}
-    command: qemu-img resize "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2"  "{{ item.disksize }}"
+- name: Query disk image with qemu-img
+  command: qemu-img info --output json "{{ lab_host_image_src }}"
+  register: _create_vm_qemu_img_info
 
-  - name: copy image to temporary image file
-    copy:
-      src: "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2"
-      dest: "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2.temp"
-      remote_src: yes
-      force: no
+- name: Register current disk size
+  set_fact:
+    _create_vm_current_disk_size: "{{ (_create_vm_qemu_img_info.stdout | from_json)['virtual-size'] }}"
+    _create_vm_desired_disk_size: "{{ item.disksize_gb*1024*1024*1024 }}"
 
-  - name: resize the destination image file
-    command: virt-resize --expand /dev/sda3 "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2.temp" "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2"
+- name: Display current and desired disk size
+  ansible.builtin.debug:
+    msg:
+      - "Current size: {{ _create_vm_current_disk_size }}"
+      - "Desired size: {{ _create_vm_desired_disk_size }}"
 
-  - name: remove the temporary disk image
-    file:
-      path: "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2.temp"
-      state: absent
+- name: Resize disk image
   when:
     - item.disksize is defined
     - not destination_image.stat.exists
+    - _create_vm_current_disk_size != _create_vm_desired_disk_size
+  block:
+  - name: Resize disk to {{ item.disksize_gb }} GB
+    ansible.builtin.command: qemu-img resize "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"  "{{ item.disksize }}G"
 
-- name: Customize vm
-  command: >
-    /usr/bin/virt-customize
-    -a /var/lib/libvirt/images/{{ item.name }}-vda.qcow2
+  - name: Copy image to temporary image file
+    ansible.builtin.copy:
+      src: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
+      dest: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp"
+      remote_src: yes
+      force: no
+
+  - name: Resize the destination image file
+    ansible.builtin.command: virt-resize --expand /dev/sda3 "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp" "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
+
+  - name: Remove the temporary disk image
+    ansible.builtin.file:
+      path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp"
+      state: absent
+
+- name: Customize VM
+  ansible.builtin.command: >
+    virt-customize
+    -a {{ lab_host_image_path }}/{{ item.name }}-vda.qcow2
     --root-password password:redhat
     --uninstall cloud-init
     --hostname {{ item.name }}
     --ssh-inject root:string:"{{ lab.ssh_public_key }}"
     --selinux-relabel
 
-- name: Install
+- name: Install {{ item.name }} with virt-install and NAT networking
   command: >
-    /usr/bin/virt-install
+    virt-install
     --name "{{ item.name }}"
     --memory "{{ item.memory | default('2048') }}"
     --vcpus "{{ item.cpu | default('1') }}"
-    --disk "/var/lib/libvirt/images/{{ item.name }}-vda.qcow2"
+    --disk "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
     --import
     --os-variant rhel8.1
     --noautoconsole
@@ -71,13 +99,13 @@
   when:
     - lab.network.type == "nat"
 
-- name: install {{ item.name }} with virt-install and bridge networking
+- name: Install {{ item.name }} with virt-install and bridge networking
   command: >
-    /usr/bin/virt-install
+    virt-install
     --name {{ item.name }}
     --memory {{ item.memory | default('2048') }}
     --vcpus {{ item.cpu | default('1') }}
-    --disk /var/lib/libvirt/images/{{ item.name }}-vda.qcow2
+    --disk {{ lab_host_image_path }}/{{ item.name }}-vda.qcow2
     --import
     --os-variant rhel8.1
     --noautoconsole
@@ -97,6 +125,6 @@
   when: lab_ssh_proxy == ""
 
 
-# - include_tasks: inventory.yml
-- name: Register host on satellite
-  include_tasks: register.yml
+# # - include_tasks: inventory.yml
+# - name: Register host on satellite
+#   include_tasks: register.yml

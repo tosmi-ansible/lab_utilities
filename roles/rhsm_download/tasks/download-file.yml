@@ -9,6 +9,7 @@
 - debug: var=rhsm_download_offline_token
 
 - name: Download file if needed
+  when: not _local_file_path.stat.exists or _local_file_path.stat.checksum != rhsm_download_file_checksum[_filename]
   block:
     # Generate a token per file download since they're only valid
     # for 5 minutes and large downloads may take longer
@@ -20,7 +21,7 @@
         body:
           grant_type: refresh_token
           client_id: rhsm-api
-          refresh_token: '{{ rhsm_download_offline_token | regex_replace("\s+","") }}'
+          refresh_token: '{{ rhsm_download_offline_token | regex_replace("\s+", "") }}'
       register: _access_token_request
 
     - name: Download file using RHSM API (this may take some time)
@@ -33,7 +34,5 @@
         mode: '{{ rhsm_download_file_mode }}'
         checksum: sha256:{{ rhsm_download_file_checksum[_filename] }}
   # end block
-  when: not _local_file_path.stat.exists or
-        _local_file_path.stat.checksum != rhsm_download_file_checksum[_filename]
 
 ...

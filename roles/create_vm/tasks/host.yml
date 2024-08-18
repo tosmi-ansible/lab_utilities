@@ -1,13 +1,14 @@
+---
 - name: Print information about host
-  debug:
+  ansible.builtin.debug:
     msg: "Going to create host {{ item.name }} with a {{ item.disksize | default('10') }} disk image, {{ item.cpu | default('1') }} cpu(s) and {{ item.memory | default('2048') }} memory"
 
-- name: Check if {{ item.name }} is already defined
-  virt:
+- name: Check if guest is already defined "{{ item.name }}"
+  community.libvirt.virt:
     command: info
   register: lab_virt_info
 
-- name: Create a host based on on a RHEL image
+- name: Create a host based on a RHEL image
   include_tasks: rhel_host.yml
   when:
     - ( item.image is not defined or item.image != "blank" )
@@ -19,15 +20,21 @@
     - item.image == "blank"
     - item.name not in lab_virt_info
 
+- name: Add a static DHCP entry for host {{ item.name }}
+  community.libvirt.virt_net:
+    name: "{{ lab.network.name }}"
+    command: modify
+    xml: "<host mac='{{ item.macaddr }}' name='my_vm' ip='{{ item.ipaddr }}'/>"
+
 - name: Enable autostart for host {{ item.name }}
-  virt:
+  community.libvirt.virt:
     autostart: yes
     name: "{{ item.name }}"
 
 - name: Restart host if required
   block:
     - name: shutdown host {{ item.name }}
-      virt:
+      community.libvirt.virt:
         state: shutdown
         name: "{{ item.name }}"
 
@@ -36,7 +43,7 @@
         seconds: 10
 
     - name: Start host {{ item.name }}
-      virt:
+      community.libvirt.virt:
         state: running
         name: "{{ item.name }}"
   when:

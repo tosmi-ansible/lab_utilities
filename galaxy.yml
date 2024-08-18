@@ -16,12 +16,12 @@ readme: README.md
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-- your name <example@domain.com>
+- Toni Schmidbauer <toni@stderr.at>
 
 
 ### OPTIONAL but strongly recommended
 # A short summary description of the collection
-description: your collection description
+description: Collection for creating lab environments
 
 # Either a single license or a list of licenses for content inside of a collection. Ansible Galaxy currently only
 # accepts L(SPDX,https://spdx.org/licenses/) licenses. This key is mutually exclusive with 'license_file'
@@ -40,7 +40,8 @@ tags: []
 # collection label 'namespace.name'. The value is a version range
 # L(specifiers,https://python-semanticversion.readthedocs.io/en/latest/#requirement-specification). Multiple version
 # range specifiers can be set and are separated by ','
-dependencies: {}
+dependencies:
+  community.libvirt: '1.3.0'
 
 # The URL of the originating SCM repository
 repository: http://example.com/repository
@@ -66,4 +67,3 @@ build_ignore: []
 # 'omit_default_directives' is a boolean that controls whether the default directives are used. Mutually exclusive
 # with 'build_ignore'
 # manifest: null
-

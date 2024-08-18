@@ -14,7 +14,7 @@
 #
 rhsm_download_file_checksum:
   # RHEL 9 QCOW2 images
-  rhel-9.4-x86_64-kvm.qcow2: '17b013f605e6b85affd37431b533b6904541f8b889179ae3f99e1e480dd4ae38'
+  rhel-9.4-x86_64-kvm.qcow2: 'd362e72518a2d7415d850b8177c814f6fd87f42ca1640bda17e98855e1d6baad'
   rhel-baseos-9.1-x86_64-kvm.qcow2: '8a24976ed98ac43b165369353741bb3a4c72fac9ad1cd7d564956ffe8a89c968'
   rhel-baseos-9.0-update-4-x86_64-kvm.qcow2: 'cf64d9c8cec54c3eba4b642468ab191e5c19e6b2251ef885bd4516e2099e5ea3'
   rhel-baseos-9.0-x86_64-kvm.qcow2: '92862e085e4d5690cfa57de7155aa29bfdf21feec3d46dd4b61ca63293312af7'

@@ -25,7 +25,8 @@
             pkgs.glibcLocales
             pkgs.yamllint
             pkgs.kubevirt
-            pkgs.python312Packages.kubernetes
+            pkgs.python311Packages.kubernetes
+            pkgs.python311Packages.libvirt
           ];
         };
       });

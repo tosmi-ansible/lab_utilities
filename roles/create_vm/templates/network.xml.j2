@@ -3,7 +3,7 @@
     <domain name='{{ lab.network.name }}.local'/>
     <forward mode='nat'/>
 
-    <ip address='{{ lab.network.startip }}' netmask='{{ lab.network.netmask }}'>
+    <ip address='{{ lab.network.startip | default(lab_default_network_startip) }}' netmask='{{ lab.network.netmask | default(lab_default_network_netmask)}}'>
         <dhcp>
 	{% for host in lab.hosts %}
             <host mac='{{ host.macaddr }}' name='{{ host.name }}.{{ lab.network.name }}.local' ip='{{ host.ipaddr }}'/>

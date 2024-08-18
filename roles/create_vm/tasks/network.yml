@@ -1,30 +1,50 @@
+---
 - name: Recreate the network {{ lab.network.name }}
-  block:
-  - name: destroy network {{ network.name }}
-    virt_net:
-      command: destroy
-      name: "{{ lab.network.name }}"
-
-  - name: undefine network {{ network.name }}
-    virt_net:
-      command: undefine
-      name: "{{ lab.network.name }}"
   when:
     - lab_recreate_network|bool
+  block:
+    - name: Destroy network {{ network.name }}
+      community.libvirt.virt_net:
+        command: destroy
+        name: "{{ lab.network.name }}"
 
-- name: Define network {{ lab.network.name }}
-  virt_net:
-    command: define
-    autostart: yes
-    name: "{{ lab.network.name }}"
-    xml: '{{ lookup("template", "templates/network.xml.j2") }}'
+    - name: Undefine network {{ network.name }}
+      community.libvirt.virt_net:
+        command: undefine
+        name: "{{ lab.network.name }}"
 
-- name: start network {{ lab.network.name }}
-  virt_net:
-    command: create
-    name: "{{ lab.network.name }}"
+- name: Print desired network configuration
+  ansible.builtin.debug:
+    var: lab.network
+    verbosity: 1
 
-- name: enable autostart for network {{ lab.network.name }}
-  virt_net:
-    autostart: yes
-    name: "{{ lab.network.name }}"
+- name: Query current list of networks
+  community.libvirt.virt_net:
+    command: list_nets
+  register: _create_vm_virt_nets
+
+- name: Print list of already defined networks
+  ansible.builtin.debug:
+    var: _create_vm_virt_nets
+    verbosity: 1
+
+- name: Creating network {{ lab.network.name }} if it does not exist
+  when:
+    - lab.network.name not in _create_vm_virt_nets.list_nets
+  block:
+    - name: Define network {{ lab.network.name }}
+      community.libvirt.virt_net:
+        command: define
+        autostart: yes
+        name: "{{ lab.network.name }}"
+        xml: '{{ lookup("template", "templates/network.xml.j2") }}'
+
+    - name: Start network {{ lab.network.name }}
+      community.libvirt.virt_net:
+        command: create
+        name: "{{ lab.network.name }}"
+
+    # - name: Enable autostart for network {{ lab.network.name }}
+    #   community.libvirt.virt_net:
+    #     autostart: yes
+    #     name: "{{ lab.network.name }}"

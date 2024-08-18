@@ -3,12 +3,10 @@
   ansible.builtin.include_role:
     name: rhsm_download
   vars:
-    rhsm_download_directory: "{{ '~/.local/share/libvirt/images if (vm.libvirt_session == 'user') | default('/var/lib/libvirt/images') }}"
+    rhsm_download_directory: "{{ '~/.local/share/libvirt/images' if (vm.libvirt_session == 'user') | default('/var/lib/libvirt/images') }}"
     rhsm_download_files:
-      - rhel-9.4-x86_64-kvm.qcow2
       - "{{ vm.image }}"
-  loop:
-    - "{{ lab.hosts }}"
+  loop: "{{ lab.hosts }}"
   loop_control:
     loop_var: vm
 ...
