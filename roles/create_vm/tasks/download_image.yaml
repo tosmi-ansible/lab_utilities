@@ -3,7 +3,7 @@
   ansible.builtin.include_role:
     name: rhsm_download
   vars:
-    rhsm_download_directory: "{{ '~/.local/share/libvirt/images' if (vm.libvirt_session == 'user') | default('/var/lib/libvirt/images') }}"
+    rhsm_download_directory: "{{ lab_host_image_path }}"
     rhsm_download_files:
       - "{{ vm.image }}"
   loop: "{{ lab.hosts }}"

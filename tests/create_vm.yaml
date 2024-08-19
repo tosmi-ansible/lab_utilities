@@ -10,15 +10,17 @@
       name: linux
       network:
         name: default
-        type: nat
+        type: bridge
       hosts:
         - name: test-vm
-          macaddr: 52:54:00:6c:3c:01
-          ipaddr: 192.168.122.3
-          libvirt_session: user
-          disksize_gb: 10
-          memory: 8192
-          cpu: 2
+          macaddr: 52:54:00:6c:3c:99
+          ipaddr: 192.168.122.99
+          libvirt_session: session
+          disk:
+            size_gb: 20
+            root_fs: /dev/sda4
+          memory: 4096
+          cpu: 1
           image: rhel-9.4-x86_64-kvm.qcow2
   roles:
     - { role: create_vm }

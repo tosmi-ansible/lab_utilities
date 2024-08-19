@@ -6,8 +6,6 @@
     checksum_algorithm: sha256
   register: _local_file_path
 
-- debug: var=rhsm_download_offline_token
-
 - name: Download file if needed
   when: not _local_file_path.stat.exists or _local_file_path.stat.checksum != rhsm_download_file_checksum[_filename]
   block:
@@ -34,5 +32,4 @@
         mode: '{{ rhsm_download_file_mode }}'
         checksum: sha256:{{ rhsm_download_file_checksum[_filename] }}
   # end block
-
 ...

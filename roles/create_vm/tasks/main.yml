@@ -1,4 +1,18 @@
 ---
+# - name: Check if variables are valid
+#   ansible.builtin.fail:
+#   when:
+
+- name: Get the current User ID
+  ansible.builtin.setup:
+    gather_subset:
+      - '!all'
+      - 'user_id'
+
+- name: Set the path to images
+  set_fact:
+    lab_host_image_path: "{{ lab_user_image_path if ansible_facts.user_id != 'root' | default(lab_image_path) }}"
+
 - name: Creating new lab environement {{ lab.name }}
   when: not lab_destroy|bool
   block:
@@ -38,5 +52,6 @@
       ansible.builtin.include_tasks: remove_network.yml
       when:
         - lab.network is defined
-        - lab.network.type == "nat"
+        - lab.network.type == 'nat'
+        - lab.network.name != 'default'
 ...

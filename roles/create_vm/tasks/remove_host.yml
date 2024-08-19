@@ -1,26 +1,37 @@
-- name: Check if {{ item.name }} is defined
-  virt:
+- name: Set qemu connect URI for {{ item.name }}
+  ansible.builtin.set_fact:
+    _create_vm_qemu_uri: "{{ 'qemu:///session' if 'session' in item.libvirt_session | default('qemu:///system') }}"
+
+- name: Check if guest is defined {{ item.name }}
+  community.libvirt.virt:
     command: info
+    uri: "{{ _create_vm_qemu_uri }}"
   register: lab_virt_info
 
-- debug: var=lab_virt_info
-
 - name: Remove {{ item.name }}
-  block:
-  - name: destroying host {{ item.name }}
-    command: virsh destroy "{{ item.name }}"
-    when: lab_virt_info["{{ item.name }}"].state != "shutdown"
-
-  - name: undefining host {{ item.name }}
-    command: virsh undefine "{{ item.name }}"
   when: item.name in lab_virt_info
+  block:
+  - name: Destroying host {{ item.name }}
+    ansible.builtin.virt:
+      name: "{{ item.name }}"
+      command: destroy
+      uri: "{{ _create_vm_qemu_uri }}"
+    when:
+      - lab_virt_info[item.name].state != "shutdown"
 
-- name: Remove {{ item.name }} disk image
-  file:
-    path: /var/lib/libvirt/images/{{ item.name }}-vda.qcow2
+  - name: Undefining host {{ item.name }}
+    ansible.builtin.virt:
+      name: "{{ item.name }}"
+      command: undefine
+      uri: "{{ _create_vm_qemu_uri }}"
+      force: true
+
+- name: Remove disk image for {{ item.name }}
+  ansible.builtin.file:
+    path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
     state: absent
 
-- name: Remove {{ item.name }} temporary disk image
-  file:
-    path: /var/lib/libvirt/images/{{ item.name }}-vda.qcow2.temp
+- name: Remove temporary disk image for {{ item.name }}
+  ansible.builtin.file:
+    path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp"
     state: absent
