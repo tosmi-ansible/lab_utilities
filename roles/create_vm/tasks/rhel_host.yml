@@ -1,8 +1,3 @@
-- name: Check if destination image already exists
-  ansible.builtin.stat:
-    path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
-  register: destination_image
-
 - name: Check RHEL images exists
   ansible.builtin.stat:
     path: "{{ lab_host_image_src }}"
@@ -23,11 +18,10 @@
 - name: Resize the root disk
   when:
     - item.disk.size_gb is defined
-    - not destination_image.stat.exists
   block:
 
     - name: Query disk image with qemu-img
-      command: qemu-img info --output json "{{ lab_host_image_src }}"
+      ansible.builtin.command: qemu-img info --output json "{{ lab_host_image_src }}"
       register: _create_vm_qemu_img_info
 
     - name: Register current disk size
@@ -47,17 +41,14 @@
       block:
         - name: Resize disk to {{ item.disk.size_gb }} GB
           ansible.builtin.command: qemu-img resize "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"  "{{ _create_vm_desired_disk_size }}"
-
         - name: Copy image to temporary image file
           ansible.builtin.copy:
             src: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
             dest: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp"
             remote_src: yes
             force: no
-
         - name: Resize the destination image file
           ansible.builtin.command: virt-resize --expand {{ item.disk.root_fs }} "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp" "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
-
         - name: Remove the temporary disk image
           ansible.builtin.file:
             path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp"
@@ -75,7 +66,7 @@
   changed_when: true
 
 - name: Install {{ item.name }} with virt-install and NAT networking
-  command: >
+  ansible.builtin.command: >
     virt-install
     --connect "{{ _create_vm_qemu_uri }}"
     --name "{{ item.name }}"
@@ -91,7 +82,7 @@
   changed_when: true
 
 - name: Install {{ item.name }} with virt-install and BRIDGE networking
-  command: >
+  ansible.builtin.command: >
     virt-install
     --connect "{{ _create_vm_qemu_uri }}"
     --name {{ item.name }}

@@ -3,7 +3,6 @@
   ansible.builtin.debug:
     msg: "Going to create host {{ item.name }} with a {{ item.disksize | default('10') }} disk image, {{ item.cpu | default('1') }} cpu(s) and {{ item.memory | default('2048') }} memory"
 
-
 - name: Gather facts about the used network
   community.libvirt.virt_net:
     command: facts
@@ -36,46 +35,58 @@
     command: modify
     xml: "<host mac='{{ item.macaddr }}' name='{{ item.name }}' ip='{{ item.ipaddr }}'/>"
 
-- name: Create a host based on a RHEL image
-  include_tasks: rhel_host.yml
-  when:
-    - ( item.image is not defined or item.image != "blank" )
-    - item.name not in lab_virt_info
+- name: Check if destination image already exists
+  ansible.builtin.stat:
+    path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
+  register: destination_image
 
-- name: Create a blank host
-  include_tasks: blank_host.yml
-  when:
-    - item.image == "blank"
-    - item.name not in lab_virt_info
+- fail:
 
-- name: Enable autostart for host {{ item.name }}
-  community.libvirt.virt:
-    autostart: yes
-    uri: "{{ _create_vm_qemu_uri }}"
-    name: "{{ item.name }}"
-
-- name: Restart host if required
+- name: Create the VM from the template
   when:
-    - item.name in lab_virt_info
-    - lab_recreate_network|bool
+    - not destination_image.stat.exists
   block:
-    - name: Shutdown host {{ item.name }}
+
+    - name: Create a host based on a RHEL image
+      include_tasks: rhel_host.yml
+      when:
+        - ( item.image is not defined or item.image != "blank" )
+        - item.name not in lab_virt_info
+
+    - name: Create a blank host
+      include_tasks: blank_host.yml
+      when:
+        - item.image == "blank"
+        - item.name not in lab_virt_info
+
+    - name: Enable autostart for host {{ item.name }}
       community.libvirt.virt:
-        state: shutdown
+        autostart: yes
+        uri: "{{ _create_vm_qemu_uri }}"
         name: "{{ item.name }}"
 
-    - name: Give host time to shut down
-      ansible.builtin.pause:
-        seconds: 10
+    - name: Restart host if required
+      when:
+        - item.name in lab_virt_info
+        - lab_recreate_network|bool
+      block:
+        - name: Shutdown host {{ item.name }}
+          community.libvirt.virt:
+            state: shutdown
+            name: "{{ item.name }}"
 
-    - name: Start host {{ item.name }}
-      community.libvirt.virt:
-        state: running
-        name: "{{ item.name }}"
+        - name: Give host time to shut down
+          ansible.builtin.pause:
+            seconds: 10
 
-- name: Add additional disks to guest
-  include_tasks: add_disk.yml
-  loop: "{{ item.additional_disks }}"
-  loop_control:
-    loop_var: disk
-  when: item.additional_disks is defined
+        - name: Start host {{ item.name }}
+          community.libvirt.virt:
+            state: running
+            name: "{{ item.name }}"
+
+    - name: Add additional disks to guest
+      include_tasks: add_disk.yml
+      loop: "{{ item.additional_disks }}"
+      loop_control:
+        loop_var: disk
+      when: item.additional_disks is defined

@@ -7,5 +7,5 @@
 
 - name: Run update-ca-trust to enable CA certificate
   delegate_to: "{{ item.name }}"
-  command: /usr/bin/update-ca-trust extract
+  ansible.builtin.command: /usr/bin/update-ca-trust extract
   when: lab_ca_cert_copy.changed
