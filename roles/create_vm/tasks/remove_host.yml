@@ -6,25 +6,30 @@
   community.libvirt.virt:
     command: info
     uri: "{{ _create_vm_qemu_uri }}"
-  register: lab_virt_info
+  register: _create_vm_virt_info
+
+- name: Print libvirt information about the VM
+  debug:
+    var: _create_vm_virt_info
+    verbosity: 1
 
 - name: Remove {{ item.name }}
-  when: item.name in lab_virt_info
+  when: item.name in _create_vm_virt_info
   block:
-  - name: Destroying host {{ item.name }}
-    ansible.builtin.virt:
-      name: "{{ item.name }}"
-      command: destroy
-      uri: "{{ _create_vm_qemu_uri }}"
-    when:
-      - lab_virt_info[item.name].state != "shutdown"
+    - name: Destroying host {{ item.name }}
+      community.libvirt.virt:
+        name: "{{ item.name }}"
+        command: destroy
+        uri: "{{ _create_vm_qemu_uri }}"
+      when:
+        - _create_vm_virt_info[item.name].state != "shutdown"
 
-  - name: Undefining host {{ item.name }}
-    ansible.builtin.virt:
-      name: "{{ item.name }}"
-      command: undefine
-      uri: "{{ _create_vm_qemu_uri }}"
-      force: true
+    - name: Undefining host {{ item.name }}
+      community.libvirt.virt:
+        name: "{{ item.name }}"
+        command: undefine
+        uri: "{{ _create_vm_qemu_uri }}"
+        force: true
 
 - name: Remove disk image for {{ item.name }}
   ansible.builtin.file:
@@ -34,4 +39,9 @@
 - name: Remove temporary disk image for {{ item.name }}
   ansible.builtin.file:
     path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2.temp"
+    state: absent
+
+- name: Remove host key from known_hosts
+  ansible.builtin.known_hosts:
+    name: "{{ item.ipaddr }}"
     state: absent
