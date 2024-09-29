@@ -1,11 +1,13 @@
 - name: Copy stderr.at ca certificate to node
   delegate_to: "{{ item.name }}"
+  remote_user: root
   copy:
     src: ca.crt
     dest: /etc/pki/ca-trust/source/anchors/
-  register: lab_ca_cert_copy
+  register: _create_vm_ca_cert_copy
 
 - name: Run update-ca-trust to enable CA certificate
   delegate_to: "{{ item.name }}"
+  remote_user: root
   ansible.builtin.command: /usr/bin/update-ca-trust extract
-  when: lab_ca_cert_copy.changed
+  when: _create_vm_ca_cert_copy.changed
