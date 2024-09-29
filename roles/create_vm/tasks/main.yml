@@ -14,7 +14,8 @@
     lab_host_image_path: "{{ lab_user_image_path if ansible_facts.user_id != 'root' | default(lab_image_path) }}"
 
 - name: Creating new lab environement {{ lab.name }}
-  when: not lab_destroy|bool
+  when:
+    - not lab_destroy|bool
   block:
     - name: Download required images
       ansible.builtin.include_tasks:
@@ -40,7 +41,8 @@
       when: lab.hosts is defined
 
 - name: Removing lab environment {{ lab.name }}
-  when: lab_destroy|bool
+  when:
+    - lab_destroy|bool
   block:
     - name: Removing hosts
       ansible.builtin.include_tasks:
@@ -54,4 +56,7 @@
         - lab.network is defined
         - lab.network.type == 'nat'
         - lab.network.name != 'default'
+
+
+
 ...
