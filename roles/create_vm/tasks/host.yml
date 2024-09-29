@@ -1,4 +1,7 @@
 ---
+# These tasks are called for every host in the lab
+# structure
+#
 - name: Print information about host
   ansible.builtin.debug:
     msg: "Going to create host {{ item.name }} with a {{ item.disksize | default('10') }} disk image, {{ item.cpu | default('1') }} cpu(s) and {{ item.memory | default('2048') }} memory"
@@ -8,7 +11,21 @@
     command: facts
     name: "{{ lab.network.name }}"
 
-# - debug: var=ansible_libvirt_networks
+- name: Print libvirt networks
+  debug:
+    var: ansible_libvirt_networks
+    verbosity: 1
+
+- name: Add host to inventory
+  ansible.builtin.add_host:
+    hostname: "{{ item.name }}"
+    ansible_ssh_user: root
+    ansible_ssh_host: "{{ item.ipaddr }}"
+
+- name: Check if guest is already defined "{{ item.name }}"
+  community.libvirt.virt:
+    command: info
+  register: _create_vm_virt_info
 
 - name: Set fact for bridge name
   ansible.builtin.set_fact:
@@ -24,11 +41,6 @@
   ansible.builtin.set_fact:
     _create_vm_qemu_uri: "{{ 'qemu:///session' if 'session' in item.libvirt_session | default('qemu:///system') }}"
 
-- name: Check if guest is already defined "{{ item.name }}"
-  community.libvirt.virt:
-    command: info
-  register: lab_virt_info
-
 - name: Add a static DHCP entry for host {{ item.name }}
   community.libvirt.virt_net:
     name: "{{ lab.network.name }}"
@@ -40,18 +52,14 @@
     path: "{{ lab_host_image_path }}/{{ item.name }}-vda.qcow2"
   register: destination_image
 
-- fail:
-
 - name: Create the VM from the template
   when:
     - not destination_image.stat.exists
   block:
-
     - name: Create a host based on a RHEL image
       include_tasks: rhel_host.yml
       when:
         - ( item.image is not defined or item.image != "blank" )
-        - item.name not in lab_virt_info
 
     - name: Create a blank host
       include_tasks: blank_host.yml
@@ -67,7 +75,6 @@
 
     - name: Restart host if required
       when:
-        - item.name in lab_virt_info
         - lab_recreate_network|bool
       block:
         - name: Shutdown host {{ item.name }}
