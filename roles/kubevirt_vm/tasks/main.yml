@@ -1,0 +1,92 @@
+---
+- name: Create namespace to host virtual machines
+  kubernetes.core.k8s:
+    state: present
+    validate_certs: false
+    api_version: v1
+    kind: Namespace
+    name: "{{ kubevirt_vms.namespace }}"
+
+- name: Creating an OpenShift Virtualization VM
+  kubernetes.core.k8s:
+    state: "{{ kubevirt_vms.state | default('present') }}"
+    validate_certs: false
+    definition: "{{ lookup('ansible.builtin.template', 'virtualmachine.yaml.j2', jinga2_native=true) |from_yaml }}"
+  loop: "{{ kubevirt_vms.vms }}"
+  loop_control:
+    label: Creating VM {{ vm.name }}
+    loop_var: vm
+
+# - name: Creating an OpenShift Virtualization VM
+#   redhat.openshift_virtualization.kubevirt_vm:
+#     validate_certs: false
+#     state: present
+#     name: "{{ vm.name }}"
+#     namespace: "{{ kubevirt_vms.namespace }}"
+#     labels:
+#       vm: "{{ vm.name }}"
+#     data_volume_templates:
+#       - metadata:
+#           name: "{{ vm.name }}"
+#         spec:
+#           sourceRef:
+#             kind: DataSource
+#             name: "{{ vm.datasource }}"
+#             namespace: openshift-virtualization-os-images
+#           storage:
+#             accessModes:
+#               - ReadWriteOnce
+#             resources:
+#               requests:
+#                 storage: "{{ vm.storage }}"
+#     spec:
+#       architecture: amd64
+#       domain:
+#         cpu:
+#           cores: |-
+#             {{ vm.cores | int }}
+#           sockets: 1
+#           threads: 1
+#         devices:
+#           disks:
+#           - disk:
+#               bus: virtio
+#             name: rootdisk
+#           - disk:
+#               bus: virtio
+#             name: cloudinitdisk
+#           interfaces:
+#           - masquerade: {}
+#             model: virtio
+#             name: default
+#           - bridge: {}
+#             model: virtio
+#             name: bridge-network
+#         machine:
+#           type: pc-q35-rhel9.2.0
+#         memory:
+#           guest: "{{ vm.memory }}"
+#         resources: {}
+#       networks:
+#       - name: default
+#         pod: {}
+#       - multus:
+#           networkName: default/bridge-network
+#         name: bridge-network
+#       terminationGracePeriodSeconds: 180
+#       volumes:
+#       - dataVolume:
+#           name: "{{ vm.name }}"
+#         name: rootdisk
+#       - cloudInitNoCloud:
+#           userData: |-
+#             #cloud-config
+#             user: admin
+#             ssh_authorized_keys:
+#               - "{{ kubevirt_vms.ssh_public_key }}"
+#             chpasswd: { expire: False }
+#         name: cloudinitdisk
+#   loop: "{{ kubevirt_vms.vms }}"
+#   loop_control:
+#     label: Creating VM {{ vm.name }}
+#     loop_var: vm

@@ -1,0 +1,77 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    vm: "{{ vm.name }}"
+  name: "{{ vm.name }}"
+  namespace: "{{ kubevirt_vms.namespace }}"
+spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: "{{ vm.name }}"
+      spec:
+        sourceRef:
+          kind: DataSource
+          name: rhel9
+          namespace: openshift-virtualization-os-images
+        storage:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 60Gi
+  running: true
+  template:
+    metadata:
+      labels:
+        vm: "{{ vm.name }}"
+    spec:
+      architecture: amd64
+      domain:
+        cpu:
+          cores: {{ vm.cores | int }}
+          model: host-model
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: rootdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+            - name: default
+              masquerade: {}
+              model: virtio
+            - bridge: {}
+              macAddress: "{{ vm.mac }}"
+              model: virtio
+              name: bridge-network
+        features:
+          acpi:
+            enabled: true
+        machine:
+          type: pc-q35-rhel9.2.0
+        memory:
+          guest: "{{ vm.memory }}"
+      networks:
+      - name: default
+        pod: {}
+      - multus:
+          networkName: default/bridge-network
+        name: bridge-network
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - dataVolume:
+            name: "{{ vm.name }}"
+          name: rootdisk
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              user: admin
+              ssh_authorized_keys:
+                - "{{ kubevirt_vms.ssh_public_key }}"
+              chpasswd: { expire: False }
+          name: cloudinitdisk
