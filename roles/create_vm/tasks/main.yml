@@ -56,7 +56,4 @@
         - lab.network is defined
         - lab.network.type == 'nat'
         - lab.network.name != 'default'
-
-
-
 ...
