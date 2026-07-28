@@ -12,15 +12,14 @@ spec:
       spec:
         sourceRef:
           kind: DataSource
-          name: rhel9
+          name: "{{ vm.datasource.name}}"
           namespace: openshift-virtualization-os-images
         storage:
-          accessModes:
-            - ReadWriteOnce
           resources:
             requests:
-              storage: 60Gi
-  running: true
+              storage: "{{ vm.storage.size }}"
+          storageClassName: "{{ vm.storage.class }}"
+  runStrategy: Always
   template:
     metadata:
       labels:
@@ -45,23 +44,23 @@ spec:
             - name: default
               masquerade: {}
               model: virtio
-            - bridge: {}
+{#             - bridge: {}
               macAddress: "{{ vm.mac }}"
               model: virtio
-              name: bridge-network
+              name: bridge-network #}
         features:
           acpi:
             enabled: true
         machine:
-          type: pc-q35-rhel9.2.0
+          type: pc-q35-rhel9.6.0
         memory:
           guest: "{{ vm.memory }}"
       networks:
       - name: default
         pod: {}
-      - multus:
+{#       - multus:
           networkName: default/bridge-network
-        name: bridge-network
+        name: bridge-network #}
       terminationGracePeriodSeconds: 180
       volumes:
         - dataVolume:
@@ -71,6 +70,7 @@ spec:
             userData: |-
               #cloud-config
               user: admin
+              password: # needs to be here
               ssh_authorized_keys:
                 - "{{ kubevirt_vms.ssh_public_key }}"
               chpasswd: { expire: False }
